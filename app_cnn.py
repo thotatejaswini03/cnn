@@ -18,11 +18,12 @@ st.set_page_config(
 st.markdown("""
 <style>
 
+/* Background */
 .stApp{
-    background-color:#f5f7fb;
+    background-color:#FFFFFF;
 }
 
-/* Hide Streamlit menu */
+/* Hide Streamlit */
 #MainMenu {visibility:hidden;}
 footer {visibility:hidden;}
 header {visibility:hidden;}
@@ -31,13 +32,14 @@ header {visibility:hidden;}
 .main-title{
     font-size:48px;
     font-weight:700;
-    color:#2D3748;
+    color:#111827;
     margin-bottom:10px;
 }
 
+/* Top Line */
 .hr-line{
     height:4px;
-    background:#D946EF;
+    background:#7C3AED;
     border:none;
     border-radius:10px;
     margin-bottom:20px;
@@ -45,44 +47,68 @@ header {visibility:hidden;}
 
 /* Section Headings */
 .section-title{
-    font-size:28px;
+    font-size:32px;
     font-weight:700;
-    color:#2D3748;
-    margin-bottom:10px;
+    color:#111827;
+    margin-bottom:15px;
 }
 
 /* Cards */
 .card{
     background:white;
     padding:20px;
-    border-radius:15px;
-    box-shadow:0 2px 12px rgba(0,0,0,0.08);
+    border-radius:16px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
 }
 
 /* Prediction Card */
 .prediction-card{
     background:white;
     padding:25px;
-    border-radius:15px;
+    border-radius:16px;
     text-align:center;
-    box-shadow:0 2px 12px rgba(0,0,0,0.08);
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
 }
 
+/* Prediction Result */
 .big-result{
-    font-size:40px;
-    font-weight:bold;
+    font-size:50px;
+    font-weight:700;
     color:#111827;
 }
 
 .confidence{
-    font-size:24px;
+    font-size:28px;
     color:#059669;
+    font-weight:700;
+}
+
+/* Labels */
+.label-text{
+    color:#374151;
     font-weight:600;
+    font-size:18px;
+}
+
+/* Probability Heading */
+.breakdown-title{
+    color:#111827;
+    font-size:36px;
+    font-weight:700;
+    margin-top:20px;
+}
+
+/* Probability Labels */
+.prob-text{
+    color:#111827;
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:5px;
 }
 
 /* Sidebar */
-.css-1d391kg{
-    background:white;
+section[data-testid="stSidebar"]{
+    background-color:#F9FAFB;
 }
 
 </style>
@@ -117,26 +143,23 @@ st.sidebar.title("App Navigation")
 
 st.sidebar.markdown("### Supported Classes")
 
-st.sidebar.success("🐱 Cat")
-st.sidebar.success("🐶 Dog")
+st.sidebar.markdown("🐱 Cat")
+st.sidebar.markdown("🐶 Dog")
 
 st.sidebar.markdown("---")
 
 st.sidebar.info(
-    """
-    Upload an image and the CNN model will
-    classify it as Cat or Dog.
-    """
+    "Upload an image and the CNN model will classify it as Cat or Dog."
 )
 
 # -------------------------------------------------
-# TWO COLUMN LAYOUT
+# MAIN LAYOUT
 # -------------------------------------------------
-left_col, right_col = st.columns([1.2, 1])
+left_col, right_col = st.columns([1.2,1])
 
-# =================================================
-# LEFT SIDE
-# =================================================
+# -------------------------------------------------
+# LEFT COLUMN
+# -------------------------------------------------
 with left_col:
 
     st.markdown(
@@ -146,7 +169,7 @@ with left_col:
 
     uploaded_file = st.file_uploader(
         "Upload an image",
-        type=["jpg", "jpeg", "png"]
+        type=["jpg","jpeg","png"]
     )
 
     if uploaded_file is not None:
@@ -155,13 +178,12 @@ with left_col:
 
         st.image(
             image,
-            caption="Uploaded Image",
             use_container_width=True
         )
 
-# =================================================
-# RIGHT SIDE
-# =================================================
+# -------------------------------------------------
+# RIGHT COLUMN
+# -------------------------------------------------
 with right_col:
 
     st.markdown(
@@ -171,7 +193,6 @@ with right_col:
 
     if uploaded_file is not None:
 
-        # Preprocess image
         img = image.resize((128,128))
         img = np.array(img)/255.0
         img = np.expand_dims(img, axis=0)
@@ -185,12 +206,9 @@ with right_col:
         cat_prob = 1 - dog_prob
 
         if dog_prob > 0.5:
-
             predicted_class = "DOG 🐶"
             confidence = dog_prob * 100
-
         else:
-
             predicted_class = "CAT 🐱"
             confidence = cat_prob * 100
 
@@ -198,47 +216,74 @@ with right_col:
             f"""
             <div class="prediction-card">
 
-            <p style="color:gray;
-                      font-size:14px;
-                      margin-bottom:10px;">
+                <p style="
+                color:#6B7280;
+                font-size:14px;
+                letter-spacing:1px;
+                ">
                 TOP PREDICTED CATEGORY
-            </p>
+                </p>
 
-            <div class="big-result">
+                <div class="big-result">
                 {predicted_class}
-            </div>
+                </div>
 
-            <br>
+                <br>
 
-            <div class="confidence">
+                <div class="confidence">
                 Confidence Match: {confidence:.2f}%
-            </div>
+                </div>
 
             </div>
             """,
             unsafe_allow_html=True
         )
 
+        st.markdown(
+            '<div class="breakdown-title">Probability Breakdown</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="prob-text">🐱 Cat</div>',
+            unsafe_allow_html=True
+        )
+        st.progress(cat_prob)
+        st.markdown(
+            f'<div class="label-text">{cat_prob*100:.2f}%</div>',
+            unsafe_allow_html=True
+        )
+
         st.markdown("<br>", unsafe_allow_html=True)
 
-        st.subheader("Probability Breakdown")
-
-        st.write("🐱 Cat")
-        st.progress(cat_prob)
-        st.write(f"{cat_prob*100:.2f}%")
-
-        st.write("🐶 Dog")
+        st.markdown(
+            '<div class="prob-text">🐶 Dog</div>',
+            unsafe_allow_html=True
+        )
         st.progress(dog_prob)
-        st.write(f"{dog_prob*100:.2f}%")
+        st.markdown(
+            f'<div class="label-text">{dog_prob*100:.2f}%</div>',
+            unsafe_allow_html=True
+        )
 
     else:
 
-        st.info(
-            "Upload an image to see prediction results."
-        )
+        st.info("Upload an image to see prediction results.")
 
 # -------------------------------------------------
 # FOOTER
 # -------------------------------------------------
 st.markdown("<br><br>", unsafe_allow_html=True)
 
+st.markdown(
+    """
+    <div style="
+    text-align:center;
+    color:#6B7280;
+    font-size:15px;
+    ">
+    Powered by Convolutional Neural Networks (CNN)
+    </div>
+    """,
+    unsafe_allow_html=True
+)
