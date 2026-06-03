@@ -31,7 +31,7 @@ header {visibility:hidden;}
 .main-title{
     font-size:48px;
     font-weight:700;
-    color:#5B4BDB;
+    color:#2D3748;
     margin-bottom:10px;
 }
 
@@ -47,7 +47,7 @@ header {visibility:hidden;}
 .section-title{
     font-size:28px;
     font-weight:700;
-    color:#5B4BDB;
+    color:#2D3748;
     margin-bottom:10px;
 }
 
@@ -71,12 +71,12 @@ header {visibility:hidden;}
 .big-result{
     font-size:40px;
     font-weight:bold;
-    color:#5B4BDB;
+    color:#111827;
 }
 
 .confidence{
     font-size:24px;
-    color:#10B981;
+    color:#059669;
     font-weight:600;
 }
 
