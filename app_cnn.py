@@ -3,154 +3,164 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 
-# -----------------------------
-# Page Configuration
-# -----------------------------
+# ---------------------------------------------------
+# PAGE CONFIG
+# ---------------------------------------------------
 st.set_page_config(
-    page_title="Cat vs Dog Classifier",
+    page_title="PetVision AI",
     page_icon="🐾",
     layout="centered"
 )
 
-# -----------------------------
-# Custom CSS
-# -----------------------------
+# ---------------------------------------------------
+# CUSTOM CSS
+# ---------------------------------------------------
 st.markdown("""
 <style>
 
-/* Background */
+/* Hide Streamlit Branding */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* Main Background */
 .stApp {
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    background: linear-gradient(
+        135deg,
+        #667eea 0%,
+        #764ba2 50%,
+        #6B73FF 100%
+    );
 }
 
-/* Main Title */
+/* Title */
 .main-title {
     text-align: center;
-    font-size: 3rem;
-    font-weight: 800;
     color: white;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 0;
 }
 
 /* Subtitle */
 .subtitle {
     text-align: center;
-    color: #e8e8e8;
+    color: #f3f3f3;
     font-size: 1.1rem;
     margin-bottom: 30px;
 }
 
-/* Upload Box */
-[data-testid="stFileUploader"] {
-    background-color: rgba(255,255,255,0.08);
-    padding: 20px;
-    border-radius: 15px;
-    border: 2px dashed white;
+/* Glass Container */
+.glass {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    border-radius: 25px;
+    padding: 25px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0px 8px 32px rgba(0,0,0,0.25);
 }
 
 /* Prediction Card */
 .prediction-card {
     background: white;
-    padding: 20px;
-    border-radius: 15px;
+    border-radius: 20px;
+    padding: 25px;
     text-align: center;
-    font-size: 26px;
-    font-weight: bold;
-    color: #222;
-    box-shadow: 0px 4px 20px rgba(0,0,0,0.25);
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
-/* Section Heading */
-.section-heading {
-    color: white;
-    font-size: 1.2rem;
-    font-weight: bold;
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.15);
     margin-top: 20px;
 }
 
-/* White text */
+/* Upload Area */
+[data-testid="stFileUploader"] {
+    background: rgba(255,255,255,0.12);
+    border: 2px dashed rgba(255,255,255,0.4);
+    border-radius: 20px;
+    padding: 20px;
+}
+
+/* White Text */
 .white-text {
     color: white;
-    font-size: 1rem;
+    text-align: center;
 }
 
-/* Hide Streamlit Branding */
-#MainMenu {
-    visibility: hidden;
-}
-
-footer {
-    visibility: hidden;
-}
-
-header {
-    visibility: hidden;
+/* Confidence Text */
+.confidence-text {
+    color: white;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------
-# Load Model
-# -----------------------------
+# ---------------------------------------------------
+# LOAD MODEL
+# ---------------------------------------------------
 @st.cache_resource
 def load_model():
     return tf.keras.models.load_model("cat_dog_cnn.h5")
 
 model = load_model()
 
-# -----------------------------
-# Header
-# -----------------------------
+# ---------------------------------------------------
+# HEADER
+# ---------------------------------------------------
 st.markdown(
-    '<div class="main-title">🐾 Cat vs Dog Classifier</div>',
+    """
+    <div class="main-title">
+        🐾 PetVision AI
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="subtitle">Upload an image and let the CNN predict whether it is a Cat or Dog.</div>',
+    """
+    <div class="subtitle">
+        Deep Learning Powered Cat & Dog Recognition
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
-# -----------------------------
-# Upload Image
-# -----------------------------
+# ---------------------------------------------------
+# UPLOAD IMAGE
+# ---------------------------------------------------
 uploaded_file = st.file_uploader(
-    "📤 Upload an Image",
+    "📤 Upload a Cat or Dog Image",
     type=["jpg", "jpeg", "png"]
 )
 
-# -----------------------------
-# Prediction
-# -----------------------------
+# ---------------------------------------------------
+# PREDICTION
+# ---------------------------------------------------
 if uploaded_file is not None:
 
     image = Image.open(uploaded_file).convert("RGB")
 
+    st.markdown('<div class="glass">', unsafe_allow_html=True)
+
     st.image(
         image,
-        caption="Uploaded Image",
         use_container_width=True
     )
 
-    # Preprocess Image
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Preprocess
     img = image.resize((128, 128))
     img = np.array(img) / 255.0
     img = np.expand_dims(img, axis=0)
 
-    with st.spinner("🔍 Analyzing Image..."):
+    # Predict
+    with st.spinner("🔍 AI is analyzing the image..."):
         prediction = model.predict(img, verbose=0)
 
     probability = float(prediction[0][0])
 
-    st.markdown(
-        '<div class="section-heading">Prediction Result</div>',
-        unsafe_allow_html=True
-    )
-
+    # Dog
     if probability > 0.5:
 
         confidence = probability * 100
@@ -158,13 +168,14 @@ if uploaded_file is not None:
         st.markdown(
             f"""
             <div class="prediction-card">
-                🐶 DOG<br>
-                Confidence: {confidence:.2f}%
+                <h1>🐶 DOG</h1>
+                <h3>Confidence: {confidence:.2f}%</h3>
             </div>
             """,
             unsafe_allow_html=True
         )
 
+    # Cat
     else:
 
         confidence = (1 - probability) * 100
@@ -172,28 +183,44 @@ if uploaded_file is not None:
         st.markdown(
             f"""
             <div class="prediction-card">
-                🐱 CAT<br>
-                Confidence: {confidence:.2f}%
+                <h1>🐱 CAT</h1>
+                <h3>Confidence: {confidence:.2f}%</h3>
             </div>
             """,
             unsafe_allow_html=True
         )
 
+    # Confidence Bar
     st.markdown(
-        '<div class="section-heading">Prediction Score</div>',
+        """
+        <div class="confidence-text">
+            Prediction Confidence
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
-    st.progress(
-        min(max(probability, 0.0), 1.0)
-    )
+    st.progress(confidence / 100)
 
     st.markdown(
-        f'<p class="white-text">🐶 Dog Probability: <b>{probability:.4f}</b></p>',
+        f"""
+        <div class="white-text">
+            Confidence Score: {confidence:.2f}%
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
-    st.markdown(
-        f'<p class="white-text">🐱 Cat Probability: <b>{1 - probability:.4f}</b></p>',
-        unsafe_allow_html=True
-    )
+# ---------------------------------------------------
+# FOOTER
+# ---------------------------------------------------
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+st.markdown(
+    """
+    <div style="text-align:center;color:white;opacity:0.8;">
+        Powered by Convolutional Neural Networks (CNN)
+    </div>
+    """,
+    unsafe_allow_html=True
+)
