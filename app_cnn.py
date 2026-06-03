@@ -20,7 +20,12 @@ st.markdown("""
 
 /* Background */
 .stApp{
-    background-color:#FFFFFF;
+    background: linear-gradient(
+        135deg,
+        #F8F7FF 0%,
+        #EEF4FF 50%,
+        #FFF7F8 100%
+    );
 }
 
 /* Hide Streamlit */
